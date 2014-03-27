@@ -305,14 +305,14 @@ class Repository
     while !commits.empty?
       commit_batch = commits.pop 100
       commit_batch.each do |commit|
-        commit = commit.lines.to_a
-        info, formulae = commit.shift.strip.split("\x00"), commit
-        rev = self.revisions.build sha: info[0]
-        rev.author = self.authors.find_or_initialize_by email: info[2]
-        rev.author.name = info[3]
+        info, *formulae = commit.lines
+        sha, timestamp, email, name, subject = info.strip.split "\x00"
+        rev = self.revisions.build sha: sha
+        rev.author = self.authors.find_or_initialize_by email: email
+        rev.author.name = name
         rev.author.save!
-        rev.date = info[1].to_i
-        rev.subject = info[4]
+        rev.date = timestamp.to_i
+        rev.subject = subject
         formulae.each do |formula|
           status, name = formula.split
           next unless name =~ formula_regex
