@@ -188,7 +188,6 @@ class Repository
 
     aliases.each do |type, apath|
       name = apath.match(ALIAS_REGEX)[1]
-      formula = nil
       if type == 'D'
         formula = self.formulae.where(aliases: name).first
         next if formula.nil?
@@ -312,7 +311,7 @@ class Repository
     commits = git(log_cmd).split /\n\n/
     commit_progress = 0
     commit_count = commits.size
-    while !commits.empty?
+    until commits.empty?
       commit_batch = commits.pop 100
       commit_batch.each do |commit|
         info, *formulae = commit.lines
